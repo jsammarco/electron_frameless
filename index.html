@@ -4,24 +4,9 @@
 		<meta charset="UTF-8">
 		<title>Password Access Request Console</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-		<style>
-			a, img {
-				-webkit-user-drag: none;
-				-khtml-user-drag: none;
-				-moz-user-drag: none;
-				-o-user-drag: none;
-				user-drag: none;
-			}
-			nav {
-				-webkit-user-select: none;
-				-khtml-user-select: none;
-				-moz-user-select: none;
-				-o-user-select: none;
-				user-select: none;
-			}
-		</style>
+		<link rel="stylesheet" href="styles.css">
 	</head>
-	<body style="background-color: #ededed;">
+	<body>
 		<nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top" style="-webkit-app-region: drag;">
 	      <button style="-webkit-app-region: no-drag; border-color: silver;" class="navbar navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
 	        <span class="navbar-toggler-icon"></span>
@@ -53,12 +38,14 @@
 	      	<br />
 	      	<br />
 	        <h1>Welcome</h1>
-	        <p class="lead">Use this application to securley request site passwords.</p>
+	        <p class="lead">Use this application to securely request site passwords.</p>
 	        <div>
 		        <form>
 					<div class="form-group">
 						<label for="InputSearch">Search</label>
-						<input type="text" class="form-control" id="InputSearch" aria-describedby="searchHelp" placeholder="Site Name, Project # or Address">
+						<div id="searchInputWrapper">
+							<input type="text" class="form-control typeahead" id="InputSearch" aria-describedby="searchHelp" placeholder="Site Name, Project # or Address">
+						</div>
 						<small id="searchHelp" class="form-text text-muted">Enter the site name, project # or address</small>
 					</div>
 		        </form>
@@ -68,12 +55,72 @@
 	    </div><!-- /.container -->
 	    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
 	    <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"><\/script>')</script>
+	    <script src="typeahead.bundle.js"></script>
 	    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 		<script>
 			$(function () {
 				$('#InputSearch').focus();
-			})
+			});
+
+			var substringMatcher = function(strs) {
+			  return function findMatches(q, cb) {
+			    var matches, substringRegex;
+
+			    // an array that will be populated with substring matches
+			    matches = [];
+
+			    // regex used to determine if a string contains the substring `q`
+			    substrRegex = new RegExp(q, 'i');
+
+			    // iterate through the pool of strings and for any string that
+			    // contains the substring `q`, add it to the `matches` array
+			    $.each(strs, function(i, str) {
+			      if (substrRegex.test(str)) {
+			        matches.push(str);
+			      }
+			    });
+
+			    cb(matches);
+			  };
+			};
+
+			var states = [
+				'The Pet Shop 123 Main St. Homewood, IL',
+				'Joe\'s Bar & Grill 321 2nd St. Joliet, IL',
+				'HobbyTown USA 555 Hobby St. Chicago, IL'
+			];
+
+			$('#searchInputWrapper #InputSearch').typeahead({
+				hint: true,
+				highlight: true,
+				minLength: 1,
+				minLength: 3
+			},
+			{
+			  name: 'states',
+			  source: substringMatcher(states)
+			});
+
+			$('#searchInputWrapper #InputSearch').keyup(function( event ) {
+				$('#statusBar small').html("Loading.");
+				setTimeout(function () {
+					$('#statusBar small').html("Loading. .");
+				}, 500);
+				setTimeout(function () {
+					$('#statusBar small').html("Loading. . .");
+				}, 750);
+				setTimeout(function () {
+					$('#statusBar small').html("Loading.");
+				}, 1000);
+				setTimeout(function () {
+					$('#statusBar small').html("Loading. .");
+				}, 1250);
+				setTimeout(function () {
+					$('#statusBar small').html("Ready.");
+				}, 2000);
+			});
+
 			// You can also require other files to run in this process
 			require('./renderer.js')
 		</script>
